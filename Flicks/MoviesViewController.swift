@@ -30,7 +30,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                 if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
                     print(dataDictionary)
                     
-                    self.movies = dataDictionary["results"] as? [NSDictionary]
+                    self.movies = dataDictionary["results"] as! [NSDictionary]
                     self.movieTableView.reloadData()
                 }
             }
@@ -53,13 +53,19 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = movieTableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath)
+        let cell = movieTableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieViewCell
         
         let movie = movies![indexPath.row]
         let title = movie["title"] as! String
+        let overview = movie["overview"] as! String
+        let baseURL = "https://image.tmdb.org/t/p/w500"
+        let posterPath = movie["poster_path"] as! String
+        let imageURL = NSURL(string: baseURL + posterPath)
         
-        cell.textLabel!.text = title
-        //print("row \(indexPath.row)")
+        cell.posterView
+        cell.titleLabel.text = title
+        cell.overviewLabel.text = overview
+       
         return cell
     }
 
