@@ -10,21 +10,22 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MoviesViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
 
-    @IBOutlet weak var movieTableView: UITableView!
+    //@IBOutlet weak var movieTableView: UITableView!
+    @IBOutlet weak var movieCollectionView: UICollectionView!
     
     var movies: [NSDictionary]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        movieTableView.dataSource = self;
-        movieTableView.delegate = self;
+        movieCollectionView.dataSource = self;
+        movieCollectionView.delegate = self;
         
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
-        movieTableView.insertSubview(refreshControl, at: 0)
+        movieCollectionView.insertSubview(refreshControl, at: 0)
         
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")!
@@ -34,10 +35,10 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
             if let data = data {
                 if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
-                    print(dataDictionary)
+                    //print(dataDictionary)
                     
                     self.movies = dataDictionary["results"] as? [NSDictionary]
-                    self.movieTableView.reloadData()
+                    self.movieCollectionView.reloadData()
                 }
             }
             MBProgressHUD.hide(for: self.view, animated: true)
@@ -61,7 +62,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             // ... Use the new data to update the data source ...
             
             // Reload the tableView now that there is new data
-            self.movieTableView.reloadData()
+            self.movieCollectionView.reloadData()
             
             // Tell the refreshControl to stop spinning
             refreshControl.endRefreshing()
@@ -69,7 +70,35 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         task.resume()
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if let movies = movies {
+            return movies.count
+        }
+        else {
+            return 0
+        }
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = movieCollectionView.dequeueReusableCell(withReuseIdentifier: "movieViewCell", for: indexPath) as! movieCollectionViewCell
+        
+        let movie = movies![indexPath.row]
+        let title = movie["title"] as! String
+        //let overview = movie["overview"] as! String
+        let baseURL = "https://image.tmdb.org/t/p/w500"
+        let posterPath = movie["poster_path"] as! String
+        let imageURL = NSURL(string: baseURL + posterPath)
+        
+        print("debug message: ", imageURL ?? 0, "\n")
+        cell.posterView.setImageWith(imageURL as! URL)
+        cell.titleLabel.text = title
+        //cell.overviewLabel.text = overview
+        
+        return cell
+    }
+    
+    /*func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let movies = movies {
             return movies.count
         }
@@ -93,17 +122,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         cell.overviewLabel.text = overview
        
         return cell
-    }
+    }*/
 
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
