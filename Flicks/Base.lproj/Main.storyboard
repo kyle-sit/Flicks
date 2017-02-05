@@ -66,6 +66,7 @@
                     </view>
                     <connections>
                         <outlet property="movieCollectionView" destination="ZBV-S3-HXU" id="tg6-j9-maW"/>
+                        <outlet property="searchBar" destination="F6K-8u-NTS" id="HeJ-7J-9b5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

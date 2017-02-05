@@ -14,14 +14,21 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
 
     //@IBOutlet weak var movieTableView: UITableView!
     @IBOutlet weak var movieCollectionView: UICollectionView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var movies: [NSDictionary]?
+    var titles: [String]!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         movieCollectionView.dataSource = self;
         movieCollectionView.delegate = self;
+        
+        let i = 0
+        while movies?[i] != nil{
+            titles[i] = movies?[i]["title"] as! String
+        }
         
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
@@ -83,20 +90,35 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = movieCollectionView.dequeueReusableCell(withReuseIdentifier: "movieViewCell", for: indexPath) as! movieCollectionViewCell
         
-        let movie = movies![indexPath.row]
-        let title = movie["title"] as! String
+        //let movie = movies![indexPath.row]
+        //let title = movie["title"] as! String
+        let title = titles[indexPath.row] as! String
         //let overview = movie["overview"] as! String
         let baseURL = "https://image.tmdb.org/t/p/w500"
         let posterPath = movie["poster_path"] as! String
         let imageURL = NSURL(string: baseURL + posterPath)
         
-        print("debug message: ", imageURL ?? 0, "\n")
+        //print("debug message: ", imageURL ?? 0, "\n")
         cell.posterView.setImageWith(imageURL as! URL)
         cell.titleLabel.text = title
         //cell.overviewLabel.text = overview
         
         return cell
     }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        titles = searchText.isEmpty ? titles : titles.filter({(dataString: String) -> Bool in
+            return dataString.range(of: searchText, options: .caseInsensitive) != nil
+        })
+        
+        movieCollectionView.reloadData()
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        self.searchBar.showsCancelButton = true
+    }
+    
+    
     
     /*func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let movies = movies {
