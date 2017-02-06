@@ -27,11 +27,11 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         movieCollectionView.delegate = self;
         searchBar.delegate = self;
         
-        let i = 0
+        /*let i = 0
         repeat {
             titles[i] = movies?[i]["title"] as! String
             print(movies?[i]["title"] ?? "null")
-        }while(movies?[i] != nil)
+        }while(movies?[i] != nil)*/
 
         filteredTitles = titles
         
@@ -96,8 +96,8 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         let cell = movieCollectionView.dequeueReusableCell(withReuseIdentifier: "movieViewCell", for: indexPath) as! movieCollectionViewCell
         
         let movie = movies![indexPath.row]
-        //let title = movie["title"] as! String
-        let title = filteredTitles[indexPath.row]
+        let title = movie["title"] as! String
+        //alet title = filteredTitles[indexPath.row]
         //let overview = movie["overview"] as! String
         let baseURL = "https://image.tmdb.org/t/p/w500"
         let posterPath = movie["poster_path"] as! String
