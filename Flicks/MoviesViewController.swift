@@ -10,7 +10,7 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class MoviesViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+class MoviesViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UISearchBarDelegate {
 
     //@IBOutlet weak var movieTableView: UITableView!
     @IBOutlet weak var movieCollectionView: UICollectionView!
@@ -24,6 +24,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
 
         movieCollectionView.dataSource = self;
         movieCollectionView.delegate = self;
+        searchBar.delegate = self;
         
         let i = 0
         while movies?[i] != nil{
@@ -90,9 +91,9 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = movieCollectionView.dequeueReusableCell(withReuseIdentifier: "movieViewCell", for: indexPath) as! movieCollectionViewCell
         
-        //let movie = movies![indexPath.row]
-        //let title = movie["title"] as! String
-        let title = titles[indexPath.row] as! String
+        let movie = movies![indexPath.row]
+        let title = movie["title"] as! String
+        //let title = titles[indexPath.row]
         //let overview = movie["overview"] as! String
         let baseURL = "https://image.tmdb.org/t/p/w500"
         let posterPath = movie["poster_path"] as! String
@@ -118,6 +119,11 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         self.searchBar.showsCancelButton = true
     }
     
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        self.searchBar.showsCancelButton = false
+        self.searchBar.text = ""
+        self.searchBar.resignFirstResponder()
+    }
     
     
     /*func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
