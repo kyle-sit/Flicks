@@ -12,4 +12,8 @@ User Stories:
 [x] Movies are displayed using a CollectionView instead of a TableView.
 [x] User can search for a movie.
 
+https://giphy.com/gifs/26xBznStv62Acg2fm
+http://imgur.com/BPkEICU
+http://i.imgur.com/BPkEICU.gif
+
 I am still currently trying to get the search bar to match the output but was unable to get help from office hours in time.  So I'm submitting to meet the deadline but am still working on finishing it.
