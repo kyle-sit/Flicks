@@ -18,6 +18,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     var movies: [NSDictionary]?
     var titles: [String]!
+    var filteredTitles: [String]!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,9 +28,12 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         searchBar.delegate = self;
         
         let i = 0
-        while movies?[i] != nil{
+        repeat {
             titles[i] = movies?[i]["title"] as! String
-        }
+            print(movies?[i]["title"] ?? "null")
+        }while(movies?[i] != nil)
+
+        filteredTitles = titles
         
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
@@ -92,8 +96,8 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         let cell = movieCollectionView.dequeueReusableCell(withReuseIdentifier: "movieViewCell", for: indexPath) as! movieCollectionViewCell
         
         let movie = movies![indexPath.row]
-        let title = movie["title"] as! String
-        //let title = titles[indexPath.row]
+        //let title = movie["title"] as! String
+        let title = filteredTitles[indexPath.row]
         //let overview = movie["overview"] as! String
         let baseURL = "https://image.tmdb.org/t/p/w500"
         let posterPath = movie["poster_path"] as! String
@@ -101,14 +105,14 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         
         //print("debug message: ", imageURL ?? 0, "\n")
         cell.posterView.setImageWith(imageURL as! URL)
-        cell.titleLabel.text = title
+        cell.titleLabel?.text = title
         //cell.overviewLabel.text = overview
         
         return cell
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        titles = searchText.isEmpty ? titles : titles.filter({(dataString: String) -> Bool in
+        filteredTitles = searchText.isEmpty ? titles : titles.filter({(dataString: String) -> Bool in
             return dataString.range(of: searchText, options: .caseInsensitive) != nil
         })
         
