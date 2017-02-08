@@ -17,8 +17,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     @IBOutlet weak var searchBar: UISearchBar!
     
     var movies: [NSDictionary]?
-    var titles: [String]!
-    var filteredTitles: [String]!
+    var filteredTitles: [NSDictionary]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,14 +25,6 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         movieCollectionView.dataSource = self;
         movieCollectionView.delegate = self;
         searchBar.delegate = self;
-        
-        /*let i = 0
-        repeat {
-            titles[i] = movies?[i]["title"] as! String
-            print(movies?[i]["title"] ?? "null")
-        }while(movies?[i] != nil)*/
-
-        filteredTitles = titles
         
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
@@ -47,9 +38,11 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
             if let data = data {
                 if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
-                    //print(dataDictionary)
                     
                     self.movies = dataDictionary["results"] as? [NSDictionary]
+
+                    self.filteredTitles = self.movies
+                    
                     self.movieCollectionView.reloadData()
                 }
             }
@@ -83,8 +76,8 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if let movies = movies {
-            return movies.count
+        if filteredTitles != nil {
+            return (filteredTitles?.count)!
         }
         else {
             return 0
@@ -95,15 +88,15 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = movieCollectionView.dequeueReusableCell(withReuseIdentifier: "movieViewCell", for: indexPath) as! movieCollectionViewCell
         
-        let movie = movies![indexPath.row]
+        //let movie = movies![indexPath.row]
+        let movie = filteredTitles![indexPath.row]
         let title = movie["title"] as! String
-        //alet title = filteredTitles[indexPath.row]
+        //let title = filteredTitles?[indexPath.row]
         //let overview = movie["overview"] as! String
         let baseURL = "https://image.tmdb.org/t/p/w500"
         let posterPath = movie["poster_path"] as! String
         let imageURL = NSURL(string: baseURL + posterPath)
         
-        //print("debug message: ", imageURL ?? 0, "\n")
         cell.posterView.setImageWith(imageURL as! URL)
         cell.titleLabel?.text = title
         //cell.overviewLabel.text = overview
@@ -112,9 +105,11 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filteredTitles = searchText.isEmpty ? titles : titles.filter({(dataString: String) -> Bool in
-            return dataString.range(of: searchText, options: .caseInsensitive) != nil
-        })
+        /*filteredTitles = searchText.isEmpty ? titles : titles?.filter({(dataString: String) -> Bool in
+            return dataString.range(of: searchText, options: .caseInsensitive) != nil*/
+        filteredTitles = searchText.isEmpty ? movies : movies!.filter {
+            ($0["title"]! as AnyObject).contains(searchText)
+        }
         
         movieCollectionView.reloadData()
     }
@@ -129,33 +124,5 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         self.searchBar.resignFirstResponder()
     }
     
-    
-    /*func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let movies = movies {
-            return movies.count
-        }
-        else {
-            return 0
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = movieTableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieViewCell
-        
-        let movie = movies![indexPath.row]
-        let title = movie["title"] as! String
-        let overview = movie["overview"] as! String
-        let baseURL = "https://image.tmdb.org/t/p/w500"
-        let posterPath = movie["poster_path"] as! String
-        let imageURL = NSURL(string: baseURL + posterPath)
-        
-        cell.posterView.setImageWith(imageURL as! URL)
-        cell.titleLabel.text = title
-        cell.overviewLabel.text = overview
-       
-        return cell
-    }*/
-
-
 
 }
