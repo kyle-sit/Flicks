@@ -88,18 +88,18 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = movieCollectionView.dequeueReusableCell(withReuseIdentifier: "movieViewCell", for: indexPath) as! movieCollectionViewCell
         
-        //let movie = movies![indexPath.row]
         let movie = filteredTitles![indexPath.row]
         let title = movie["title"] as! String
-        //let title = filteredTitles?[indexPath.row]
-        //let overview = movie["overview"] as! String
+
         let baseURL = "https://image.tmdb.org/t/p/w500"
-        let posterPath = movie["poster_path"] as! String
-        let imageURL = NSURL(string: baseURL + posterPath)
-        
-        cell.posterView.setImageWith(imageURL as! URL)
+    
+        if let posterPath = movie["poster_path"] as? String {
+            let imageURL = NSURL(string: baseURL + posterPath)
+            cell.posterView.setImageWith(imageURL as! URL)
+        }
+            
         cell.titleLabel?.text = title
-        //cell.overviewLabel.text = overview
+
         
         return cell
     }
@@ -124,5 +124,13 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         self.searchBar.resignFirstResponder()
     }
     
-
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let cell = sender as! UICollectionViewCell
+        let indexPath = movieCollectionView.indexPath(for: cell)
+        let movie = movies![indexPath!.row]
+        
+        let detailViewController = segue.destination as! DetailViewController
+        detailViewController.movie = movie
+    }
+    
 }
