@@ -100,9 +100,15 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         }
             
         cell.titleLabel?.text = title
-
+        let backgroundView = UIView()
+        backgroundView.backgroundColor = UIColor.white
+        cell.selectedBackgroundView = backgroundView
         
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        movieCollectionView.deselectItem(at: indexPath, animated: true)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
