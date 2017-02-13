@@ -23,11 +23,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let nowPlayingViewController = nowPlayingNavController.topViewController as! MoviesViewController
         nowPlayingViewController.endpoint = "now_playing"
         nowPlayingNavController.tabBarItem.title = "Now Playing"
+        nowPlayingNavController.tabBarItem.image = UIImage(named: "movie_tickets")
         
         let topRatedNavController = storyboard.instantiateViewController(withIdentifier: "MoviesNavigationController") as! UINavigationController
         let topRatedViewController = topRatedNavController.topViewController as! MoviesViewController
         topRatedViewController.endpoint = "top_rated"
         topRatedNavController.tabBarItem.title = "Top Rated"
+        topRatedNavController.tabBarItem.image = UIImage(named: "star_icon")
         
         let tabBarController = UITabBarController()
         tabBarController.viewControllers = [nowPlayingNavController, topRatedNavController]
