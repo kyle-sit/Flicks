@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Movies Playing-->
+        <!--Movies-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="MoviesViewController" customModule="Flicks" customModuleProvider="target" sceneMemberID="viewController">
@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" dataMode="prototypes" id="ZBV-S3-HXU">
-                                <rect key="frame" x="0.0" y="44" width="375" height="623"/>
+                                <rect key="frame" x="0.0" y="73" width="375" height="594"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Lhg-OP-6Wo">
@@ -65,7 +65,7 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="tintColor" cocoaTouchSystemColor="darkTextColor"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Movies Playing" id="O4k-wd-QN6"/>
+                    <navigationItem key="navigationItem" title="Movies" id="O4k-wd-QN6"/>
                     <connections>
                         <outlet property="movieCollectionView" destination="ZBV-S3-HXU" id="tg6-j9-maW"/>
                         <outlet property="searchBar" destination="F6K-8u-NTS" id="HeJ-7J-9b5"/>
@@ -75,7 +75,7 @@
             </objects>
             <point key="canvasLocation" x="537.5" y="154.5"/>
         </scene>
-        <!--Detail View Controller-->
+        <!--Scroll for Description-->
         <scene sceneID="U5S-WG-jFY">
             <objects>
                 <viewController id="IWA-Is-LW6" customClass="DetailViewController" customModule="Flicks" customModuleProvider="target" sceneMemberID="viewController">
@@ -117,7 +117,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" id="Hjk-oY-d42"/>
+                    <navigationItem key="navigationItem" title="Scroll for Description" id="Hjk-oY-d42"/>
                     <connections>
                         <outlet property="infoView" destination="DcH-u7-RIW" id="CqD-fl-evZ"/>
                         <outlet property="overviewLabel" destination="kXA-cM-wes" id="bZG-qa-YNZ"/>

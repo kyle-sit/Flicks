@@ -27,15 +27,36 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         movieCollectionView.delegate = self;
         searchBar.delegate = self;
         
+        if let navigationBar = navigationController?.navigationBar {
+            navigationBar.setBackgroundImage(UIImage(named: "nav_bar_bg"), for: .default)
+            navigationBar.tintColor = UIColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 1.0)
+            
+            let shadow = NSShadow()
+            shadow.shadowColor = UIColor.gray.withAlphaComponent(1.0)
+            shadow.shadowOffset = CGSize(width: 2, height: 2)
+            shadow.shadowBlurRadius = 10;
+            navigationBar.titleTextAttributes = [
+                NSFontAttributeName : UIFont.boldSystemFont(ofSize: 22),
+                NSForegroundColorAttributeName : UIColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 1.0),
+                NSShadowAttributeName : shadow
+            ]
+        }
+        
+        // Refresh Symbol when loading
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
         movieCollectionView.insertSubview(refreshControl, at: 0)
         
+        
+        //Data Request
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = URL(string: "https://api.themoviedb.org/3/movie/\(endpoint!)?api_key=\(apiKey)")!
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
         let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
+        
+        //Pull to refresh animation
         MBProgressHUD.showAdded(to: self.view, animated: true)
+        
         let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
             if let data = data {
                 if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
@@ -47,6 +68,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
                     self.movieCollectionView.reloadData()
                 }
             }
+            //pull to refresh animation close
             MBProgressHUD.hide(for: self.view, animated: true)
         }
         task.resume()

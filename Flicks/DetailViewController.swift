@@ -40,9 +40,6 @@ class DetailViewController: UIViewController {
             smallImageRequest = URLRequest(url: URL(string: "https://image.tmdb.org/t/p/w45" + posterPath)!)
             largeImageRequest = URLRequest(url: URL(string: "https://image.tmdb.org/t/p/original" + posterPath)!)
         }
-
-        //let smallImageRequest = URLRequest(url: URL(string: "https://image.tmdb.org/t/p/w45")!)
-        //let largeImageRequest = URLRequest(url: URL(string: "https://image.tmdb.org/t/p/original")!)
         
         self.posterImage.setImageWith(
             smallImageRequest,
