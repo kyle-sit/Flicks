@@ -12,5 +12,10 @@ class movieCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var posterView: UIImageView!
     
+    override func awakeFromNib() {
+        posterView.layer.cornerRadius = 3
+        posterView.clipsToBounds = true
+    }
+    
     
 }
