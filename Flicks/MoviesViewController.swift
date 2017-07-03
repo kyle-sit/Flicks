@@ -16,17 +16,22 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     @IBOutlet weak var movieCollectionView: UICollectionView!
     @IBOutlet weak var searchBar: UISearchBar!
     
+    //Variables to be used for searching
     var movies: [NSDictionary]?
     var filteredTitles: [NSDictionary]?
     var endpoint: String!
     
+    
+    //viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        //setting delegates and data sources
         movieCollectionView.dataSource = self;
         movieCollectionView.delegate = self;
         searchBar.delegate = self;
         
+        //UI specifications for navigation bar
         if let navigationBar = navigationController?.navigationBar {
             navigationBar.setBackgroundImage(UIImage(named: "nav_bar_bg"), for: .default)
             navigationBar.tintColor = UIColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 1.0)
@@ -43,35 +48,10 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         }
         
         // Refresh Symbol when loading
-        let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
-        movieCollectionView.insertSubview(refreshControl, at: 0)
-        
-        
-        //Data Request
-        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        let url = URL(string: "https://api.themoviedb.org/3/movie/\(endpoint!)?api_key=\(apiKey)")!
-        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
-        let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
+        refresh()
         
         //Pull to refresh animation
-        MBProgressHUD.showAdded(to: self.view, animated: true)
-        
-        let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
-            if let data = data {
-                if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
-                    
-                    self.movies = dataDictionary["results"] as? [NSDictionary]
-
-                    self.filteredTitles = self.movies
-                    
-                    self.movieCollectionView.reloadData()
-                }
-            }
-            //pull to refresh animation close
-            MBProgressHUD.hide(for: self.view, animated: true)
-        }
-        task.resume()
+        pullToRefresh()
     }
 
     override func didReceiveMemoryWarning() {
@@ -79,8 +59,15 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         // Dispose of any resources that can be recreated.
     }
     
+    //function for loading symbol
+    func refresh() {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
+        movieCollectionView.insertSubview(refreshControl, at: 0)
+    }
+    
+    //requesting data from API
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
-        
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")!
         let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
@@ -98,6 +85,33 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         task.resume()
     }
     
+    //function for pull to refresh animation
+    func pullToRefresh() {
+        MBProgressHUD.showAdded(to: self.view, animated: true)
+        
+        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
+        let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")!
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
+        let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
+
+        let task: URLSessionDataTask = session.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
+            if let data = data {
+                if let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary {
+                    
+                    self.movies = dataDictionary["results"] as? [NSDictionary]
+                    
+                    self.filteredTitles = self.movies
+                    
+                    self.movieCollectionView.reloadData()
+                }
+            }
+            //pull to refresh animation close
+            MBProgressHUD.hide(for: self.view, animated: true)
+        }
+        task.resume()
+    }
+    
+    //function to retrieve number of rows needed
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if filteredTitles != nil {
             return (filteredTitles?.count)!
@@ -107,7 +121,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         }
     }
     
-    
+    //function to populate cells with info
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = movieCollectionView.dequeueReusableCell(withReuseIdentifier: "movieViewCell", for: indexPath) as! movieCollectionViewCell
         
@@ -118,7 +132,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     
         if let posterPath = movie["poster_path"] as? String {
             let imageURL = NSURL(string: baseURL + posterPath)
-            cell.posterView.setImageWith(imageURL as! URL)
+            cell.posterView.setImageWith(imageURL! as URL)
         }
             
         cell.titleLabel?.text = title
@@ -129,13 +143,13 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         return cell
     }
     
+    //function for deselecting a cell
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         movieCollectionView.deselectItem(at: indexPath, animated: true)
     }
     
+    //
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        /*filteredTitles = searchText.isEmpty ? titles : titles?.filter({(dataString: String) -> Bool in
-            return dataString.range(of: searchText, options: .caseInsensitive) != nil*/
         filteredTitles = searchText.isEmpty ? movies : movies!.filter {
             ($0["title"]! as AnyObject).contains(searchText)
         }
@@ -143,16 +157,19 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         movieCollectionView.reloadData()
     }
     
+    //function to start searchbar
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         self.searchBar.showsCancelButton = true
     }
     
+    //function to quit searchbar
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         self.searchBar.showsCancelButton = false
         self.searchBar.text = ""
         self.searchBar.resignFirstResponder()
     }
     
+    //Segue to detail controlloer
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let cell = sender as! UICollectionViewCell
         let indexPath = movieCollectionView.indexPath(for: cell)
