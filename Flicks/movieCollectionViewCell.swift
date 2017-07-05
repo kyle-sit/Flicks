@@ -9,9 +9,12 @@
 import UIKit
 
 class movieCollectionViewCell: UICollectionViewCell {
+    
+    //Only title and picture for each cell
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var posterView: UIImageView!
     
+    //rounding edges of pics
     override func awakeFromNib() {
         posterView.layer.cornerRadius = 3
         posterView.clipsToBounds = true

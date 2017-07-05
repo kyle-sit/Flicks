@@ -15,6 +15,8 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
     //@IBOutlet weak var movieTableView: UITableView!
     @IBOutlet weak var movieCollectionView: UICollectionView!
     @IBOutlet weak var searchBar: UISearchBar!
+    @IBOutlet weak var networkErrorView: UIView!
+    
     
     //Variables to be used for searching
     var movies: [NSDictionary]?
@@ -50,14 +52,17 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         // Refresh Symbol when loading
         refresh()
         
-        //Pull to refresh animation
+        //Pull to refresh animation (each call populates our instance variables)
         pullToRefresh()
     }
 
+    
+    //memory warnings
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
     
     //function for loading symbol
     func refresh() {
@@ -65,6 +70,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
         movieCollectionView.insertSubview(refreshControl, at: 0)
     }
+    
     
     //requesting data from API
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
@@ -85,6 +91,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         task.resume()
     }
     
+    
     //function for pull to refresh animation
     func pullToRefresh() {
         MBProgressHUD.showAdded(to: self.view, animated: true)
@@ -103,6 +110,11 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
                     self.filteredTitles = self.movies
                     
                     self.movieCollectionView.reloadData()
+                    
+                    self.networkErrorView.isHidden = true
+                }
+                else {
+                    self.networkErrorView.isHidden = false
                 }
             }
             //pull to refresh animation close
@@ -110,6 +122,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         }
         task.resume()
     }
+    
     
     //function to retrieve number of rows needed
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -121,34 +134,70 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         }
     }
     
+    
     //function to populate cells with info
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = movieCollectionView.dequeueReusableCell(withReuseIdentifier: "movieViewCell", for: indexPath) as! movieCollectionViewCell
         
+        //Retrieve movie title and set
         let movie = filteredTitles![indexPath.row]
         let title = movie["title"] as! String
+        cell.titleLabel?.text = title
 
+        //Retrieve movie poster and set if exists
         let baseURL = "https://image.tmdb.org/t/p/w500"
     
         if let posterPath = movie["poster_path"] as? String {
-            let imageURL = NSURL(string: baseURL + posterPath)
-            cell.posterView.setImageWith(imageURL! as URL)
-        }
+            //let imageURL = NSURL(string: baseURL + posterPath)
+            //cell.posterView.setImageWith(imageURL! as URL)
             
-        cell.titleLabel?.text = title
+            //fade in images if they have not been cace
+            let imageURL = NSURLRequest(url: NSURL(string: baseURL + posterPath)! as URL)
+            cell.posterView.setImageWith(
+                imageURL as URLRequest,
+                placeholderImage: nil,
+                success: { (imageURL, imageResponse, image) -> Void in
+                    
+                    // imageResponse will be nil if the image is cached
+                    if imageResponse != nil {
+                        //print("Image was NOT cached, fade in image")
+                        cell.posterView.alpha = 0.0
+                        cell.posterView.image = image
+                        UIView.animate(withDuration: 0.6, animations: { () -> Void in
+                            cell.posterView.alpha = 1.0
+                        })
+                    } else {
+                        //print("Image was cached so just update the image")
+                        cell.posterView.image = image
+                    }
+            },
+                failure: { (imageURL, imageResponse, error) -> Void in
+                    // do something for the failure condition
+            })
+        }
+        
+        //Selected cell turns gray
         let backgroundView = UIView()
-        backgroundView.backgroundColor = UIColor.white
+        backgroundView.backgroundColor = UIColor.darkGray
         cell.selectedBackgroundView = backgroundView
         
         return cell
     }
+    
     
     //function for deselecting a cell
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         movieCollectionView.deselectItem(at: indexPath, animated: true)
     }
     
-    //
+    
+    //function to start searchbar
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        self.searchBar.showsCancelButton = true
+    }
+    
+    
+    //function for committing a search
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         filteredTitles = searchText.isEmpty ? movies : movies!.filter {
             ($0["title"]! as AnyObject).contains(searchText)
@@ -157,10 +206,6 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         movieCollectionView.reloadData()
     }
     
-    //function to start searchbar
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        self.searchBar.showsCancelButton = true
-    }
     
     //function to quit searchbar
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -168,6 +213,7 @@ class MoviesViewController: UIViewController, UICollectionViewDataSource, UIColl
         self.searchBar.text = ""
         self.searchBar.resignFirstResponder()
     }
+    
     
     //Segue to detail controlloer
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

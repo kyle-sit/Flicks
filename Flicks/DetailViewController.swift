@@ -10,12 +10,14 @@ import UIKit
 
 class DetailViewController: UIViewController {
 
+    //UI connections
     @IBOutlet weak var posterImage: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var overviewLabel: UILabel!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var infoView: UIView!
     
+    //instance variables
     var movie: NSDictionary!
     
     override func viewDidLoad() {
@@ -30,13 +32,10 @@ class DetailViewController: UIViewController {
         overviewLabel.text = overview
         overviewLabel.sizeToFit()
         
-        //let baseURL = "https://image.tmdb.org/t/p/w500"
-        
         var smallImageRequest = URLRequest(url: URL(string: "https://image.tmdb.org/t/p/w45")!)
         var largeImageRequest = URLRequest(url: URL(string: "https://image.tmdb.org/t/p/original")!)
         
         if let posterPath = movie["poster_path"] as? String {
-        //let posterPath = movie["poster_path"] as? String
             smallImageRequest = URLRequest(url: URL(string: "https://image.tmdb.org/t/p/w45" + posterPath)!)
             largeImageRequest = URLRequest(url: URL(string: "https://image.tmdb.org/t/p/original" + posterPath)!)
         }
@@ -82,6 +81,8 @@ class DetailViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
 
+    
+    //memory warnings
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
